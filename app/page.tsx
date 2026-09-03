@@ -4,78 +4,10 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import styles from './page.module.css';
 
-const pages = [
-  {
-    type: 'cover',
-    kicker: 'EDICIÓN ABIERTA',
-    title: 'GAZETA\nABIERTA',
-    subtitle: 'Noticias, cultura y ciudad',
-    number: '01',
-  },
-  {
-    type: 'news',
-    section: 'CIUDAD',
-    title: 'La ciudad vuelve a mirarse de frente',
-    body: 'Una nueva conversación sobre lo que somos, lo que cambia y lo que todavía podemos construir juntos.',
-    number: '02',
-  },
-  {
-    type: 'feature',
-    section: 'CULTURA',
-    title: 'La memoria también se diseña',
-    body: 'Historias, imágenes y voces que convierten una edición en un archivo vivo.',
-    number: '03',
-  },
-  {
-    type: 'news',
-    section: 'ACTUALIDAD',
-    title: 'Ideas que mueven la conversación',
-    body: 'Un recorrido por los temas que están transformando la agenda local.',
-    number: '04',
-  },
-  {
-    type: 'photo',
-    section: 'CRÓNICA',
-    title: 'Donde empieza la mañana',
-    body: 'Una mirada visual a las calles, sus personajes y sus pequeños rituales.',
-    number: '05',
-  },
-  {
-    type: 'news',
-    section: 'TECNOLOGÍA',
-    title: 'Lo digital ya no es una pantalla',
-    body: 'Nuevas herramientas para contar, participar y entender el mundo.',
-    number: '06',
-  },
-  {
-    type: 'feature',
-    section: 'OPINIÓN',
-    title: 'Volver a leer despacio',
-    body: 'En tiempos de desplazamiento infinito, una página también puede ser un lugar para quedarse.',
-    number: '07',
-  },
-  {
-    type: 'news',
-    section: 'AGENDA',
-    title: 'Lo que viene esta semana',
-    body: 'Eventos, encuentros y recomendaciones para salir de la rutina.',
-    number: '08',
-  },
-  {
-    type: 'photo',
-    section: 'CIUDAD',
-    title: 'Una ciudad hecha de capas',
-    body: 'Arquitectura, memoria y nuevos usos del espacio público.',
-    number: '09',
-  },
-  {
-    type: 'news',
-    section: 'CIERRE',
-    title: 'La última página no es el final',
-    body: 'Una invitación a volver, compartir y seguir leyendo.',
-    number: '10',
-  },
-];
+const pages = Array.from(
+  { length: 16 },
+  (_, i) => `/periodico/${String(i + 1).padStart(2, '0')}.jpg`
+);
 
 type PageFlipInstance = {
   flipNext: (corner?: 'top' | 'bottom' | 'bl' | 'br' | 'tl' | 'tr') => void;
@@ -416,9 +348,9 @@ export default function Home() {
               disableFlipByClick={false}
               startZIndex={10}
             >
-              {pages.map((p, i) => (
-                <Paper key={i} {...p} />
-              ))}
+             {pages.map((src, i) => (
+  <Paper key={i} src={src} number={i + 1} />
+))}
             </HTMLFlipBook>
           </div>
         </div>
@@ -476,100 +408,63 @@ export default function Home() {
           </div>
 
           <div className={styles.thumbGrid}>
-            {pages.map((p, i) => (
-              <button
-                key={i}
-                className={
-                  i === page - 1
-                    ? styles.activeThumb
-                    : ''
-                }
-                onClick={() => goToPage(i)}
-              >
-                <span>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+          {pages.map((src, i) => (
+  <button
+    key={i}
+    className={
+      i === page - 1
+        ? styles.activeThumb
+        : ''
+    }
+    onClick={() => goToPage(i)}
+  >
+    <span>
+      {String(i + 1).padStart(2, '0')}
+    </span>
 
-                <div>{p.title}</div>
-              </button>
-            ))}
+    <img
+      src={src}
+      alt={`Miniatura página ${i + 1}`}
+      style={{
+        width: '100%',
+        height: '110px',
+        objectFit: 'cover',
+        display: 'block',
+        marginTop: '8px',
+      }}
+    />
+  </button>
+))}
           </div>
         </aside>
       )}
     </main>
   );
 }
-
-const Paper = forwardRef<HTMLElement, any>(function Paper(p, ref) {
+const Paper = forwardRef<HTMLElement, any>(function Paper(
+  { src, number },
+  ref
+) {
   return (
     <article
-    ref={ref}
-    className={`${styles.paper} ${styles[p.type] || ''}`}
-  >
-      <div className={styles.paperTop}>
-        <span>GAZETA ABIERTA</span>
-        <span>EDICIÓN 27</span>
-      </div>
-
-      {p.type === 'cover' ? (
-        <>
-          <div className={styles.coverEyebrow}>
-            {p.kicker}
-          </div>
-
-          <h1>
-            {p.title
-              .split('\n')
-              .map((x: string, i: number) => (
-                <span key={i}>{x}</span>
-              ))}
-          </h1>
-
-          <div className={styles.coverLine} />
-
-          <p>{p.subtitle}</p>
-
-          <div className={styles.fakePhoto}>
-            <div className={styles.sun} />
-            <div className={styles.city} />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className={styles.section}>
-            {p.section}
-          </div>
-
-          <h2>{p.title}</h2>
-
-          <div className={styles.imageBlock}>
-            <span>{p.number}</span>
-          </div>
-
-          <p className={styles.body}>
-            {p.body}
-          </p>
-
-          <div className={styles.columns}>
-            <p>
-              Una publicación pensada para leer con
-              calma, descubrir detalles y volver sobre
-              las historias.
-            </p>
-
-            <p>
-              Fotografía, datos y relatos se encuentran
-              en una misma página para construir una
-              mirada propia.
-            </p>
-          </div>
-        </>
-      )}
-
-<div className={styles.pageNo}>
-  {p.number}
-</div>
-</article>
+      ref={ref}
+      className={styles.paper}
+      style={{
+        padding: 0,
+        background: '#fff',
+      }}
+    >
+      <img
+        src={src}
+        alt={`Página ${number} del periódico`}
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          objectFit: 'contain',
+        }}
+      />
+    </article>
   );
 });
 
