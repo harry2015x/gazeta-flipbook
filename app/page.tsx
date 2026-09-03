@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import styles from './page.module.css';
 
@@ -231,12 +231,28 @@ export default function Home() {
 
   const next = () => {
     startAudio();
-    book.current?.pageFlip().flipNext();
+  
+    const flipbook = book.current?.pageFlip();
+  
+    if (flipbook) {
+      console.log('Siguiente página');
+      flipbook.flipNext();
+    } else {
+      console.log('Flipbook todavía no está disponible');
+    }
   };
-
+  
   const prev = () => {
     startAudio();
-    book.current?.pageFlip().flipPrev();
+  
+    const flipbook = book.current?.pageFlip();
+  
+    if (flipbook) {
+      console.log('Página anterior');
+      flipbook.flipPrev();
+    } else {
+      console.log('Flipbook todavía no está disponible');
+    }
   };
 
   const goToPage = (index: number) => {
@@ -484,13 +500,12 @@ export default function Home() {
   );
 }
 
-function Paper(p: any) {
+const Paper = forwardRef<HTMLElement, any>(function Paper(p, ref) {
   return (
     <article
-      className={`${styles.paper} ${
-        styles[p.type] || ''
-      }`}
-    >
+    ref={ref}
+    className={`${styles.paper} ${styles[p.type] || ''}`}
+  >
       <div className={styles.paperTop}>
         <span>GAZETA ABIERTA</span>
         <span>EDICIÓN 27</span>
@@ -551,9 +566,11 @@ function Paper(p: any) {
         </>
       )}
 
-      <div className={styles.pageNo}>
-        {p.number}
-      </div>
-    </article>
+<div className={styles.pageNo}>
+  {p.number}
+</div>
+</article>
   );
-}
+});
+
+Paper.displayName = 'Paper';
