@@ -392,7 +392,7 @@ export default function Home() {
               ref={book as any}
               width={390}
               height={552}
-              size="stretch"
+              size="fixed"
               minWidth={280}
               maxWidth={520}
               minHeight={395}
@@ -410,7 +410,7 @@ export default function Home() {
               
               autoSize={true}
               clickEventForward={true}
-              usePortrait={isMobile}
+              usePortrait={false}
               swipeDistance={25}
               showPageCorners={true}
               disableFlipByClick={false}
