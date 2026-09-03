@@ -391,7 +391,7 @@ export default function Home() {
               className={styles.flipbook}
               style={{ margin: '0 auto' }}
               startPage={0}
-              startZIndex={0}
+              
               autoSize={true}
               clickEventForward={true}
               usePortrait={isMobile}
