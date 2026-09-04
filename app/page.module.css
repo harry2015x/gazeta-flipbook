@@ -84,9 +84,20 @@
     height:32px;
     border-radius:6px;
     cursor:pointer;
+    transition:background .18s ease,color .18s ease,transform .18s cubic-bezier(.34,1.4,.64,1);
   }
   
-  .controls button:hover,
+  .controls button:hover{
+    background:#171a21;
+    color:#e2b64e;
+    transform:scale(1.08);
+  }
+  
+  .controls button:active{
+    transform:scale(.92);
+    transition-duration:.1s;
+  }
+  
   .soundOn{
     background:#171a21!important;
     color:#e2b64e!important;
@@ -123,8 +134,11 @@
   /* Contenedor del libro */
   
   .bookWrap{
-    transition:transform .25s ease;
+    /* Easing tipo "ease-out" suave: arranca con energía y decelera
+       de forma progresiva, en vez del "ease" genérico de antes. */
+    transition:transform .42s cubic-bezier(.22,.61,.36,1);
     transform-origin:center center;
+    will-change:transform;
     max-width:95vw;
     margin:0 auto;
     display:flex;
@@ -161,6 +175,7 @@
     position:relative;
     margin:0 auto;
     filter:drop-shadow(0 22px 35px rgba(0,0,0,.48));
+    transition:filter .3s ease;
   }
   
   
@@ -225,6 +240,7 @@
   
     pointer-events:none;
     z-index:5;
+    transition:opacity .3s ease;
   
     background:linear-gradient(
       to left,
@@ -249,6 +265,7 @@
   
     pointer-events:none;
     z-index:5;
+    transition:opacity .3s ease;
   
     background:linear-gradient(
       to right,
@@ -299,10 +316,19 @@
     font-size:35px;
     line-height:40px;
     cursor:pointer;
+    transition:background .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s cubic-bezier(.34,1.4,.64,1);
   }
   
   .arrow:hover{
     background:#171a20;
+    border-color:#a37c30;
+    box-shadow:0 8px 22px rgba(0,0,0,.4);
+    transform:translateY(-50%) scale(1.08);
+  }
+  
+  .arrow:active{
+    transform:translateY(-50%) scale(.92);
+    transition-duration:.1s;
   }
   
   .left{
@@ -338,7 +364,7 @@
     display:block;
     height:100%;
     background:#b58b34;
-    transition:width .4s;
+    transition:width .5s cubic-bezier(.4,0,.2,1);
   }
   
   .footerRow{
@@ -597,6 +623,17 @@
      MINIATURAS
      ========================================================= */
   
+  @keyframes slideInPanel{
+    from{
+      transform:translateX(24px);
+      opacity:0;
+    }
+    to{
+      transform:translateX(0);
+      opacity:1;
+    }
+  }
+  
   .thumbs{
     position:absolute;
     right:0;
@@ -609,6 +646,9 @@
     padding:20px;
     box-sizing:border-box;
     box-shadow:-15px 0 30px rgba(0,0,0,.35);
+    /* Entra deslizándose porque el usuario acaba de abrirlo,
+       no es una animación decorativa automática. */
+    animation:slideInPanel .3s cubic-bezier(.22,.61,.36,1);
   }
   
   .thumbHead{
@@ -625,6 +665,12 @@
     color:#aaa;
     font-size:20px;
     cursor:pointer;
+    transition:color .2s ease,transform .2s ease;
+  }
+  
+  .thumbHead button:hover{
+    color:#e2b64e;
+    transform:scale(1.15);
   }
   
   .thumbGrid{
@@ -644,6 +690,13 @@
     text-align:left;
     cursor:pointer;
     min-height:90px;
+    transition:border-color .2s ease,background .2s ease,transform .2s ease;
+  }
+  
+  .thumbGrid button:hover{
+    border-color:#a37c30;
+    background:#1c1f27;
+    transform:translateY(-3px);
   }
   
   .thumbGrid button span{
@@ -659,6 +712,27 @@
   
   .thumbGrid .activeThumb{
     border-color:#a37c30;
+  }
+  
+  
+  /* =========================================================
+     PREFERENCIA DE MOVIMIENTO REDUCIDO
+     ========================================================= */
+  
+  @media(prefers-reduced-motion:reduce){
+    .bookWrap,
+    .flipbook,
+    .arrow,
+    .controls button,
+    .thumbHead button,
+    .thumbGrid button,
+    .progress span,
+    .thumbs,
+    .leftPage::after,
+    .rightPage::before{
+      transition:none!important;
+      animation:none!important;
+    }
   }
   
   
