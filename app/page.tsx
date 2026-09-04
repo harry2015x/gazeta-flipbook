@@ -10,9 +10,16 @@ const pages = Array.from(
 );
 
 type PageFlipInstance = {
-  flipNext: (corner?: 'top' | 'bottom' | 'bl' | 'br' | 'tl' | 'tr') => void;
-  flipPrev: (corner?: 'top' | 'bottom' | 'bl' | 'br' | 'tl' | 'tr') => void;
+  flipNext: (
+    corner?: 'top' | 'bottom' | 'bl' | 'br' | 'tl' | 'tr'
+  ) => void;
+
+  flipPrev: (
+    corner?: 'top' | 'bottom' | 'bl' | 'br' | 'tl' | 'tr'
+  ) => void;
+
   turnToPage: (page: number) => void;
+
   getCurrentPageIndex: () => number;
 };
 
@@ -20,9 +27,16 @@ type BookRef = {
   pageFlip: () => PageFlipInstance;
 };
 
+
+/* =========================================================
+   SONIDO DE PASO DE PAGINA
+   ========================================================= */
+
 function makePaperSound(ctx: AudioContext) {
   const duration = 0.22 + Math.random() * 0.12;
+
   const sampleRate = ctx.sampleRate;
+
   const buffer = ctx.createBuffer(
     1,
     Math.floor(sampleRate * duration),
@@ -35,6 +49,7 @@ function makePaperSound(ctx: AudioContext) {
     const t = i / data.length;
 
     const attack = Math.min(1, t * 35);
+
     const decay = Math.pow(1 - t, 2.2);
 
     const texture =
@@ -47,15 +62,28 @@ function makePaperSound(ctx: AudioContext) {
   }
 
   const source = ctx.createBufferSource();
+
   const filter = ctx.createBiquadFilter();
+
   const gain = ctx.createGain();
 
   filter.type = 'bandpass';
-  filter.frequency.value = 2500 + Math.random() * 900;
+
+  filter.frequency.value =
+    2500 + Math.random() * 900;
+
   filter.Q.value = 0.7;
 
-  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.55, ctx.currentTime + 0.015);
+  gain.gain.setValueAtTime(
+    0.0001,
+    ctx.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    0.55,
+    ctx.currentTime + 0.015
+  );
+
   gain.gain.exponentialRampToValueAtTime(
     0.0001,
     ctx.currentTime + duration
@@ -64,22 +92,40 @@ function makePaperSound(ctx: AudioContext) {
   source.buffer = buffer;
 
   source.connect(filter);
+
   filter.connect(gain);
+
   gain.connect(ctx.destination);
 
   source.start();
 }
 
+
+/* =========================================================
+   COMPONENTE PRINCIPAL
+   ========================================================= */
+
 export default function Home() {
   const book = useRef<BookRef | null>(null);
+
   const audio = useRef<AudioContext | null>(null);
 
   const [page, setPage] = useState(1);
+
   const [sound, setSound] = useState(true);
+
   const [zoom, setZoom] = useState(1);
+
   const [thumbs, setThumbs] = useState(false);
+
   const [isMobile, setIsMobile] = useState(false);
+
   const [fullscreen, setFullscreen] = useState(false);
+
+
+  /* =========================================================
+     AUDIO
+     ========================================================= */
 
   const startAudio = () => {
     if (!audio.current) {
@@ -91,6 +137,7 @@ export default function Home() {
     }
   };
 
+
   const playPageSound = () => {
     if (!sound) return;
 
@@ -101,6 +148,11 @@ export default function Home() {
     }
   };
 
+
+  /* =========================================================
+     DETECTAR MOVIL
+     ========================================================= */
+
   useEffect(() => {
     const checkScreen = () => {
       setIsMobile(window.innerWidth <= 700);
@@ -108,15 +160,27 @@ export default function Home() {
 
     checkScreen();
 
-    window.addEventListener('resize', checkScreen);
+    window.addEventListener(
+      'resize',
+      checkScreen
+    );
 
     return () => {
-      window.removeEventListener('resize', checkScreen);
+      window.removeEventListener(
+        'resize',
+        checkScreen
+      );
     };
   }, []);
 
+
+  /* =========================================================
+     TECLADO
+     ========================================================= */
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         next();
@@ -136,16 +200,29 @@ export default function Home() {
       }
     };
 
-    window.addEventListener('keydown', onKey);
+    window.addEventListener(
+      'keydown',
+      onKey
+    );
 
     return () => {
-      window.removeEventListener('keydown', onKey);
+      window.removeEventListener(
+        'keydown',
+        onKey
+      );
     };
   });
 
+
+  /* =========================================================
+     PANTALLA COMPLETA
+     ========================================================= */
+
   useEffect(() => {
     const onFullscreenChange = () => {
-      setFullscreen(Boolean(document.fullscreenElement));
+      setFullscreen(
+        Boolean(document.fullscreenElement)
+      );
     };
 
     document.addEventListener(
@@ -161,74 +238,139 @@ export default function Home() {
     };
   }, []);
 
+
+  /* =========================================================
+     SIGUIENTE PAGINA
+     ========================================================= */
+
   const next = () => {
     startAudio();
-  
-    const flipbook = book.current?.pageFlip();
-  
+
+    const flipbook =
+      book.current?.pageFlip();
+
     if (flipbook) {
       console.log('Siguiente página');
+
       flipbook.flipNext();
     } else {
-      console.log('Flipbook todavía no está disponible');
+      console.log(
+        'Flipbook todavía no está disponible'
+      );
     }
   };
-  
+
+
+  /* =========================================================
+     PAGINA ANTERIOR
+     ========================================================= */
+
   const prev = () => {
     startAudio();
-  
-    const flipbook = book.current?.pageFlip();
-  
+
+    const flipbook =
+      book.current?.pageFlip();
+
     if (flipbook) {
       console.log('Página anterior');
+
       flipbook.flipPrev();
     } else {
-      console.log('Flipbook todavía no está disponible');
+      console.log(
+        'Flipbook todavía no está disponible'
+      );
     }
   };
+
+
+  /* =========================================================
+     IR A UNA PAGINA
+     ========================================================= */
 
   const goToPage = (index: number) => {
     startAudio();
 
-    book.current?.pageFlip().turnToPage(index);
+    book.current
+      ?.pageFlip()
+      .turnToPage(index);
 
     setThumbs(false);
   };
 
+
+  /* =========================================================
+     EVENTO FLIP
+     ========================================================= */
+
   const onFlip = (e: any) => {
-    const index = Number(e?.data ?? 0);
+    const index = Number(
+      e?.data ?? 0
+    );
 
     setPage(index + 1);
 
     playPageSound();
   };
 
+
+  /* =========================================================
+     PANTALLA COMPLETA
+     ========================================================= */
+
   const toggleFullscreen = async () => {
     try {
+
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen?.();
+
+        await document.documentElement
+          .requestFullscreen?.();
+
       } else {
+
         await document.exitFullscreen?.();
+
       }
+
     } catch {
-      // El navegador puede bloquear fullscreen en algunos contextos.
+      // El navegador puede bloquear fullscreen
+      // en algunos contextos.
     }
   };
+
+
+  /* =========================================================
+     RESET ZOOM
+     ========================================================= */
 
   const resetZoom = () => {
     setZoom(1);
   };
+
+
+  /* =========================================================
+     INTERFAZ
+     ========================================================= */
 
   return (
     <main
       className={styles.app}
       onPointerDown={startAudio}
     >
+
+      {/* =====================================================
+          BARRA SUPERIOR
+          ===================================================== */}
+
       <header className={styles.topbar}>
+
         <div className={styles.brand}>
-          <span className={styles.mark}>G</span>
+
+          <span className={styles.mark}>
+            G
+          </span>
 
           <div>
+
             <div className={styles.name}>
               GAZETA ABIERTA
             </div>
@@ -236,20 +378,30 @@ export default function Home() {
             <div className={styles.edition}>
               EDICIÓN 27 <b>•</b> AGOSTO 2025
             </div>
+
           </div>
+
         </div>
+
 
         <div className={styles.breadcrumb}>
           ARCHIVO <span>/</span> LECTURA INMERSIVA
         </div>
 
+
         <div className={styles.controls}>
+
+          {/* Primera página */}
+
           <button
             title="Primera página"
             onClick={() => goToPage(0)}
           >
             ⟪
           </button>
+
+
+          {/* Restablecer zoom */}
 
           <button
             title="Restablecer zoom"
@@ -258,30 +410,48 @@ export default function Home() {
             ⌕
           </button>
 
+
+          {/* Acercar */}
+
           <button
             title="Acercar"
             onClick={() =>
-              setZoom((z) => Math.min(1.35, z + 0.1))
+              setZoom((z) =>
+                Math.min(1.35, z + 0.1)
+              )
             }
           >
             ⊕
           </button>
 
+
+          {/* Alejar */}
+
           <button
             title="Alejar"
             onClick={() =>
-              setZoom((z) => Math.max(0.8, z - 0.1))
+              setZoom((z) =>
+                Math.max(0.8, z - 0.1)
+              )
             }
           >
             ⊖
           </button>
 
+
+          {/* Miniaturas */}
+
           <button
             title="Miniaturas"
-            onClick={() => setThumbs((v) => !v)}
+            onClick={() =>
+              setThumbs((v) => !v)
+            }
           >
             ▦
           </button>
+
+
+          {/* Pantalla completa */}
 
           <button
             title={
@@ -294,17 +464,36 @@ export default function Home() {
             ⛶
           </button>
 
+
+          {/* Sonido */}
+
           <button
             title="Sonido"
-            className={sound ? styles.soundOn : ''}
-            onClick={() => setSound((v) => !v)}
+            className={
+              sound
+                ? styles.soundOn
+                : ''
+            }
+            onClick={() =>
+              setSound((v) => !v)
+            }
           >
             {sound ? '🔊' : '🔇'}
           </button>
+
         </div>
+
       </header>
 
+
+      {/* =====================================================
+          LECTOR
+          ===================================================== */}
+
       <section className={styles.reader}>
+
+        {/* Flecha izquierda */}
+
         <button
           className={`${styles.arrow} ${styles.left}`}
           onClick={prev}
@@ -313,50 +502,108 @@ export default function Home() {
           ‹
         </button>
 
+
+        {/* ===================================================
+            STAGE DEL LIBRO
+            =================================================== */}
+
         <div
           className={styles.bookStage}
           style={{
             transform: `scale(${zoom})`,
           }}
         >
-   <div
-  className={`${styles.bookWrap} ${
-    page === 1 ? styles.coverMode : styles.spreadMode
-  }`}
->
-<HTMLFlipBook
-  ref={book as any}
-  width={360}
-  height={552}
-  size="fixed"
-  minWidth={280}
-  maxWidth={520}
-  minHeight={395}
-  maxHeight={735}
-  showCover={true}
-  mobileScrollSupport={true}
-  useMouseEvents={true}
-  drawShadow={true}
-  maxShadowOpacity={0.75}
-  flippingTime={850}
-  onFlip={onFlip}
-  className={styles.flipbook}
-  style={{ margin: '0 auto' }}
-  startPage={0}
-  autoSize={true}
-  clickEventForward={true}
-  usePortrait={false}
-  swipeDistance={25}
-  showPageCorners={true}
-  disableFlipByClick={false}
-  startZIndex={10}
->
-             {pages.map((src, i) => (
-  <Paper key={i} src={src} number={i + 1} />
-))}
+
+          {/* =================================================
+              POSICIONAMIENTO DEL LIBRO
+              ================================================= */}
+
+          <div
+            className={`${styles.bookWrap} ${
+              page === 1
+                ? styles.coverMode
+                : page === pages.length
+                ? styles.lastMode
+                : styles.spreadMode
+            }`}
+          >
+
+            {/* ===============================================
+                FLIPBOOK
+                =============================================== */}
+
+            <HTMLFlipBook
+              ref={book as any}
+
+              width={360}
+
+              height={552}
+
+              size="fixed"
+
+              minWidth={280}
+
+              maxWidth={520}
+
+              minHeight={395}
+
+              maxHeight={735}
+
+              showCover={true}
+
+              mobileScrollSupport={true}
+
+              useMouseEvents={true}
+
+              drawShadow={true}
+
+              maxShadowOpacity={0.75}
+
+              flippingTime={850}
+
+              onFlip={onFlip}
+
+              className={styles.flipbook}
+
+              style={{
+                margin: '0 auto',
+              }}
+
+              startPage={0}
+
+              autoSize={true}
+
+              clickEventForward={true}
+
+              usePortrait={false}
+
+              swipeDistance={25}
+
+              showPageCorners={true}
+
+              disableFlipByClick={false}
+
+              startZIndex={10}
+            >
+
+              {pages.map((src, i) => (
+
+                <Paper
+                  key={i}
+                  src={src}
+                  number={i + 1}
+                />
+
+              ))}
+
             </HTMLFlipBook>
+
           </div>
+
         </div>
+
+
+        {/* Flecha derecha */}
 
         <button
           className={`${styles.arrow} ${styles.right}`}
@@ -365,19 +612,34 @@ export default function Home() {
         >
           ›
         </button>
+
       </section>
 
+
+      {/* =====================================================
+          PIE
+          ===================================================== */}
+
       <footer className={styles.footer}>
+
         <div className={styles.progress}>
+
           <span
             style={{
-              width: `${(page / pages.length) * 100}%`,
+              width: `${
+                (page / pages.length) * 100
+              }%`,
             }}
           />
+
         </div>
 
+
         <div className={styles.footerRow}>
-          <span>PRIMERA</span>
+
+          <span>
+            PRIMERA
+          </span>
 
           <strong>
             {String(page).padStart(2, '0')}
@@ -387,88 +649,159 @@ export default function Home() {
             / {String(pages.length).padStart(2, '0')}
           </span>
 
-          <span>ÚLTIMA</span>
+          <span>
+            ÚLTIMA
+          </span>
 
-          <em>•</em>
+          <em>
+            •
+          </em>
 
           <span>
             DESLIZA O USA ← →
           </span>
+
         </div>
+
       </footer>
 
+
+      {/* =====================================================
+          MINIATURAS
+          ===================================================== */}
+
       {thumbs && (
+
         <aside className={styles.thumbs}>
+
           <div className={styles.thumbHead}>
-            <span>PÁGINAS</span>
+
+            <span>
+              PÁGINAS
+            </span>
 
             <button
-              onClick={() => setThumbs(false)}
+              onClick={() =>
+                setThumbs(false)
+              }
               aria-label="Cerrar miniaturas"
             >
               ×
             </button>
+
           </div>
+
 
           <div className={styles.thumbGrid}>
-          {pages.map((src, i) => (
-  <button
-    key={i}
-    className={
-      i === page - 1
-        ? styles.activeThumb
-        : ''
-    }
-    onClick={() => goToPage(i)}
-  >
-    <span>
-      {String(i + 1).padStart(2, '0')}
-    </span>
 
-    <img
-      src={src}
-      alt={`Miniatura página ${i + 1}`}
-      style={{
-        width: '100%',
-        height: '110px',
-        objectFit: 'cover',
-        display: 'block',
-        marginTop: '8px',
-      }}
-    />
-  </button>
-))}
+            {pages.map((src, i) => (
+
+              <button
+                key={i}
+                className={
+                  i === page - 1
+                    ? styles.activeThumb
+                    : ''
+                }
+                onClick={() =>
+                  goToPage(i)
+                }
+              >
+
+                <span>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+
+
+                <img
+                  src={src}
+                  alt={`Miniatura página ${i + 1}`}
+                  style={{
+                    width: '100%',
+                    height: '110px',
+                    objectFit: 'cover',
+                    display: 'block',
+                    marginTop: '8px',
+                  }}
+                />
+
+              </button>
+
+            ))}
+
           </div>
+
         </aside>
+
       )}
+
     </main>
   );
 }
-const Paper = forwardRef<HTMLElement, any>(function Paper(
-  { src, number },
-  ref
-) {
-  return (
-    <article
-      ref={ref}
-      className={styles.paper}
-      style={{
-        padding: 0,
-        background: '#fff',
-      }}
-    >
-      <img
-        src={src}
-        alt={`Página ${number} del periódico`}
+
+
+/* =========================================================
+   COMPONENTE DE PAGINA
+   ========================================================= */
+
+const Paper = forwardRef<HTMLElement, any>(
+  function Paper(
+    { src, number },
+    ref
+  ) {
+
+    /*
+      Página 1:
+      portada → sin sombra de pliegue.
+
+      Páginas pares:
+      02, 04, 06... → lado izquierdo.
+
+      Páginas impares:
+      03, 05, 07... → lado derecho.
+
+      Página 16:
+      última → sin sombra de pliegue.
+    */
+
+    const pageClass =
+      number > 1 &&
+      number < pages.length
+        ? number % 2 === 0
+          ? styles.leftPage
+          : styles.rightPage
+        : '';
+
+    return (
+
+      <article
+        ref={ref}
+
+        className={`${styles.paper} ${pageClass}`}
+
         style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          objectFit: 'contain',
+          padding: 0,
+          background: '#fff',
         }}
-      />
-    </article>
-  );
-});
+      >
+
+        <img
+          src={src}
+          alt={`Página ${number} del periódico`}
+
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+            objectFit: 'contain',
+          }}
+        />
+
+      </article>
+
+    );
+  }
+);
+
 
 Paper.displayName = 'Paper';
