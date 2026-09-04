@@ -87,7 +87,10 @@
     color:#e2b64e!important
   }
   
-  /* LECTOR */
+  
+  /* =========================================================
+     LECTOR
+     ========================================================= */
   
   .reader{
     height:calc(100vh - 154px);
@@ -108,14 +111,19 @@
     margin:0 auto;
     display:flex;
     align-items:center;
-    justify-content:center
+    justify-content:center;
+    position:relative
   }
   
   .flipbook{
-    filter:drop-shadow(0 22px 35px rgba(0,0,0,.5))
+    filter:drop-shadow(0 22px 35px rgba(0,0,0,.48));
+    position:relative
   }
   
-  /* PAGINAS */
+  
+  /* =========================================================
+     PAGINAS DEL PERIODICO
+     ========================================================= */
   
   .paper{
     height:100%;
@@ -139,13 +147,70 @@
     object-fit:contain
   }
   
-  /* FLECHAS */
+  
+  /* =========================================================
+     EFECTO DE PLIEGUE CENTRAL
+     ========================================================= */
+  
+  /*
+     Sombra interior muy suave en cada hoja.
+     Ayuda a crear la sensación de papel doblado.
+  */
+  
+  .flipbook :global(.stf__item){
+    box-shadow:
+      inset 0 0 12px rgba(0,0,0,.12);
+  }
+  
+  
+  /*
+     Sombra más profunda en la zona interior
+     del libro.
+  */
+  
+  .flipbook :global(.stf__block){
+    box-shadow:
+      inset 0 0 22px rgba(0,0,0,.14);
+  }
+  
+  
+  /*
+     Refuerzo visual del pliegue central.
+     No interfiere con el movimiento de las páginas.
+  */
+  
+  .openSpread::after{
+    content:'';
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:50%;
+    width:3px;
+    transform:translateX(-50%);
+    background:linear-gradient(
+      to right,
+      rgba(0,0,0,.02),
+      rgba(0,0,0,.18),
+      rgba(255,255,255,.18),
+      rgba(0,0,0,.05)
+    );
+    box-shadow:
+      0 0 8px rgba(0,0,0,.20),
+      0 0 18px rgba(0,0,0,.08);
+    pointer-events:none;
+    z-index:30
+  }
+  
+  
+  /* =========================================================
+     FLECHAS
+     ========================================================= */
   
   .arrow{
     position:absolute;
     top:50%;
     transform:translateY(-50%);
-    z-index:4;
+    z-index:40;
     width:48px;
     height:48px;
     border:1px solid #2b2e36;
@@ -169,7 +234,10 @@
     right:35px
   }
   
-  /* PIE */
+  
+  /* =========================================================
+     PIE
+     ========================================================= */
   
   .footer{
     height:82px;
@@ -216,7 +284,10 @@
     margin:0 5px
   }
   
-  /* ESTILOS ANTIGUOS */
+  
+  /* =========================================================
+     ESTILOS ANTIGUOS
+     ========================================================= */
   
   .paperTop{
     display:flex;
@@ -309,7 +380,10 @@
     color:#77736b
   }
   
-  /* PORTADA */
+  
+  /* =========================================================
+     PORTADA
+     ========================================================= */
   
   .cover{
     background:#111;
@@ -418,7 +492,10 @@
     color:#c9c1b3
   }
   
-  /* PAGINAS ESPECIALES */
+  
+  /* =========================================================
+     PAGINAS ESPECIALES
+     ========================================================= */
   
   .feature h2{
     font-size:28px
@@ -432,7 +509,10 @@
     height:160px
   }
   
-  /* MINIATURAS */
+  
+  /* =========================================================
+     MINIATURAS
+     ========================================================= */
   
   .thumbs{
     position:absolute;
@@ -442,7 +522,7 @@
     width:300px;
     background:#0e1015;
     border-left:1px solid #292c34;
-    z-index:10;
+    z-index:50;
     padding:20px;
     box-sizing:border-box;
     box-shadow:-15px 0 30px rgba(0,0,0,.35)
@@ -498,7 +578,10 @@
     border-color:#a37c30
   }
   
-  /* RESPONSIVE */
+  
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
   
   @media(max-width:700px){
   
@@ -536,7 +619,8 @@
     .reader{
       height:calc(100vh - 125px);
       min-height:0;
-      padding:8px 32px
+      padding:8px 32px;
+      overflow:hidden
     }
   
     .bookWrap{
@@ -579,5 +663,12 @@
       top:60px;
       bottom:65px;
       width:85vw
+    }
+  
+    /* En móvil reducimos el efecto de pliegue */
+    .bookWrap::after{
+      width:2px;
+      box-shadow:
+        0 0 5px rgba(0,0,0,.15)
     }
   }

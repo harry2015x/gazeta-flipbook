@@ -319,11 +319,15 @@ export default function Home() {
             transform: `scale(${zoom})`,
           }}
         >
-          <div className={styles.bookWrap}>
-            <HTMLFlipBook
+     <div
+  className={`${styles.bookWrap} ${
+    page > 1 ? styles.openSpread : styles.closedCover
+  }`}
+>
+  <HTMLFlipBook
               ref={book as any}
               width={360}
-height={552}
+              height={552}
               size="fixed"
               minWidth={280}
               maxWidth={520}
