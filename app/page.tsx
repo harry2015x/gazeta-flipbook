@@ -322,7 +322,7 @@ export default function Home() {
           <div className={styles.bookWrap}>
             <HTMLFlipBook
               ref={book as any}
-              width={390}
+              width={360}
               height={552}
               size="fixed"
               minWidth={280}
