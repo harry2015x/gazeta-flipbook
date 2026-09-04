@@ -87,15 +87,18 @@
     color:#e2b64e!important
   }
   
+  /* LECTOR */
+  
   .reader{
     height:calc(100vh - 154px);
-    min-height:600px;
+    min-height:0;
     display:flex;
     align-items:center;
     justify-content:center;
     position:relative;
-    padding:25px 70px 20px;
-    box-sizing:border-box
+    padding:12px 70px 12px;
+    box-sizing:border-box;
+    overflow:hidden
   }
   
   .bookWrap{
@@ -104,15 +107,15 @@
     max-width:95vw;
     margin:0 auto;
     display:flex;
-    justify-content:center;
-    align-items:center
+    align-items:center;
+    justify-content:center
   }
   
   .flipbook{
     filter:drop-shadow(0 22px 35px rgba(0,0,0,.5))
   }
   
-  /* PAGINAS DEL PERIODICO */
+  /* PAGINAS */
   
   .paper{
     height:100%;
@@ -213,7 +216,7 @@
     margin:0 5px
   }
   
-  /* ESTILOS ANTIGUOS / PAGINAS DE TEXTO */
+  /* ESTILOS ANTIGUOS */
   
   .paperTop{
     display:flex;
@@ -532,12 +535,12 @@
   
     .reader{
       height:calc(100vh - 125px);
-      min-height:520px;
-      padding:15px 32px
+      min-height:0;
+      padding:8px 32px
     }
   
     .bookWrap{
-      max-width:100vw;
+      max-width:100vw
     }
   
     .arrow{
