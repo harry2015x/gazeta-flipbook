@@ -116,13 +116,14 @@
   }
   
   .flipbook{
-    filter:drop-shadow(0 22px 35px rgba(0,0,0,.48));
-    position:relative
+    position:relative;
+    margin:0 auto;
+    filter:drop-shadow(0 22px 35px rgba(0,0,0,.48))
   }
   
   
   /* =========================================================
-     PAGINAS DEL PERIODICO
+     PAGINAS
      ========================================================= */
   
   .paper{
@@ -149,56 +150,52 @@
   
   
   /* =========================================================
-     EFECTO DE PLIEGUE CENTRAL
+     SOMBRA DE LAS HOJAS
      ========================================================= */
   
   /*
-     Sombra interior muy suave en cada hoja.
-     Ayuda a crear la sensación de papel doblado.
+     Sombra interior muy suave.
+     Esta sombra pertenece a la hoja y por eso
+     acompaña el movimiento de la página.
   */
   
   .flipbook :global(.stf__item){
     box-shadow:
-      inset 0 0 12px rgba(0,0,0,.12);
+      inset 0 0 10px rgba(0,0,0,.10);
   }
   
   
   /*
-     Sombra más profunda en la zona interior
-     del libro.
+     Sombra interior adicional del bloque.
+     Mucho más suave que la anterior.
   */
   
   .flipbook :global(.stf__block){
     box-shadow:
-      inset 0 0 22px rgba(0,0,0,.14);
+      inset 0 0 18px rgba(0,0,0,.08);
   }
   
   
   /*
-     Refuerzo visual del pliegue central.
-     No interfiere con el movimiento de las páginas.
+     Pliegue del lado izquierdo.
+     La sombra está dentro de la propia hoja.
   */
   
-  .openSpread::after{
-    content:'';
-    position:absolute;
-    top:0;
-    bottom:0;
-    left:50%;
-    width:3px;
-    transform:translateX(-50%);
-    background:linear-gradient(
-      to right,
-      rgba(0,0,0,.02),
-      rgba(0,0,0,.18),
-      rgba(255,255,255,.18),
-      rgba(0,0,0,.05)
-    );
+  .flipbook :global(.stf__item:nth-child(odd)){
     box-shadow:
-      0 0 8px rgba(0,0,0,.20),
-      0 0 18px rgba(0,0,0,.08);
-    pointer-events:none;
-    z-index:30
+      inset -10px 0 14px -14px rgba(0,0,0,.45),
+      inset 0 0 7px rgba(0,0,0,.06);
+  }
+  
+  
+  /*
+     Pliegue del lado derecho.
+  */
+  
+  .flipbook :global(.stf__item:nth-child(even)){
+    box-shadow:
+      inset 10px 0 14px -14px rgba(0,0,0,.45),
+      inset 0 0 7px rgba(0,0,0,.06);
   }
   
   
@@ -665,10 +662,8 @@
       width:85vw
     }
   
-    /* En móvil reducimos el efecto de pliegue */
-    .bookWrap::after{
-      width:2px;
+    .flipbook :global(.stf__item){
       box-shadow:
-        0 0 5px rgba(0,0,0,.15)
+        inset 0 0 6px rgba(0,0,0,.08)
     }
   }

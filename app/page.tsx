@@ -320,38 +320,35 @@ export default function Home() {
           }}
         >
      <div
-  className={`${styles.bookWrap} ${
-    page > 1 ? styles.openSpread : styles.closedCover
-  }`}
+  
 >
-  <HTMLFlipBook
-              ref={book as any}
-              width={360}
-              height={552}
-              size="fixed"
-              minWidth={280}
-              maxWidth={520}
-              minHeight={395}
-              maxHeight={735}
-              showCover={true}
-              mobileScrollSupport={true}
-              useMouseEvents={true}
-              drawShadow={true}
-              maxShadowOpacity={0.65}
-              flippingTime={850}
-              onFlip={onFlip}
-              className={styles.flipbook}
-              style={{ margin: '0 auto' }}
-              startPage={0}
-              
-              autoSize={true}
-              clickEventForward={true}
-              usePortrait={false}
-              swipeDistance={25}
-              showPageCorners={true}
-              disableFlipByClick={false}
-              startZIndex={10}
-            >
+<HTMLFlipBook
+  ref={book as any}
+  width={360}
+  height={552}
+  size="fixed"
+  minWidth={280}
+  maxWidth={520}
+  minHeight={395}
+  maxHeight={735}
+  showCover={true}
+  mobileScrollSupport={true}
+  useMouseEvents={true}
+  drawShadow={true}
+  maxShadowOpacity={0.75}
+  flippingTime={850}
+  onFlip={onFlip}
+  className={styles.flipbook}
+  style={{ margin: '0 auto' }}
+  startPage={0}
+  autoSize={true}
+  clickEventForward={true}
+  usePortrait={false}
+  swipeDistance={25}
+  showPageCorners={true}
+  disableFlipByClick={false}
+  startZIndex={10}
+>
              {pages.map((src, i) => (
   <Paper key={i} src={src} number={i + 1} />
 ))}
