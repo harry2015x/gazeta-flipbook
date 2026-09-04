@@ -319,8 +319,10 @@ export default function Home() {
             transform: `scale(${zoom})`,
           }}
         >
-     <div
-  
+   <div
+  className={`${styles.bookWrap} ${
+    page === 1 ? styles.coverMode : styles.spreadMode
+  }`}
 >
 <HTMLFlipBook
   ref={book as any}
