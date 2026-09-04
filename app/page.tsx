@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import styles from './page.module.css';
 
@@ -123,11 +123,33 @@ export default function Home() {
   const [fullscreen, setFullscreen] = useState(false);
 
 
+  /* Espejo de `sound` en un ref: así next/prev pueden vivir en
+     un useCallback con dependencias vacías sin quedarse con un
+     closure viejo del valor de sonido. */
+
+  const soundRef = useRef(sound);
+
+  useEffect(() => {
+    soundRef.current = sound;
+  }, [sound]);
+
+
+  /* Evita que se disparen varios flipNext/flipPrev mientras
+     la animación anterior todavía está en curso: eso es lo que
+     produce ese "salto" o tartamudeo al pulsar rápido. */
+
+  const isFlipping = useRef(false);
+
+  const onChangeState = useCallback((e: any) => {
+    isFlipping.current = e?.data === 'flipping';
+  }, []);
+
+
   /* =========================================================
      AUDIO
      ========================================================= */
 
-  const startAudio = () => {
+  const startAudio = useCallback(() => {
     if (!audio.current) {
       audio.current = new AudioContext();
     }
@@ -135,18 +157,18 @@ export default function Home() {
     if (audio.current.state === 'suspended') {
       audio.current.resume();
     }
-  };
+  }, []);
 
 
-  const playPageSound = () => {
-    if (!sound) return;
+  const playPageSound = useCallback(() => {
+    if (!soundRef.current) return;
 
     startAudio();
 
     if (audio.current) {
       makePaperSound(audio.current);
     }
-  };
+  }, [startAudio]);
 
 
   /* =========================================================
@@ -175,11 +197,78 @@ export default function Home() {
 
 
   /* =========================================================
+     SIGUIENTE PAGINA
+     ========================================================= */
+
+  const next = useCallback(() => {
+    if (isFlipping.current) return;
+
+    startAudio();
+
+    const flipbook = book.current?.pageFlip();
+
+    flipbook?.flipNext();
+  }, [startAudio]);
+
+
+  /* =========================================================
+     PAGINA ANTERIOR
+     ========================================================= */
+
+  const prev = useCallback(() => {
+    if (isFlipping.current) return;
+
+    startAudio();
+
+    const flipbook = book.current?.pageFlip();
+
+    flipbook?.flipPrev();
+  }, [startAudio]);
+
+
+  /* =========================================================
+     IR A UNA PAGINA
+     ========================================================= */
+
+  const goToPage = useCallback(
+    (index: number) => {
+      startAudio();
+
+      book.current?.pageFlip().turnToPage(index);
+
+      setThumbs(false);
+    },
+    [startAudio]
+  );
+
+
+  /* =========================================================
+     EVENTO FLIP
+     ========================================================= */
+
+  const onFlip = useCallback(
+    (e: any) => {
+      const index = Number(e?.data ?? 0);
+
+      setPage(index + 1);
+
+      playPageSound();
+    },
+    [playPageSound]
+  );
+
+
+  /* =========================================================
      TECLADO
      ========================================================= */
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+
+      // Ignora la repetición automática al mantener la tecla
+      // presionada: si no, se encolan varios flips y la
+      // animación se ve entrecortada en vez de fluida.
+      if (e.repeat) return;
 
       if (e.key === 'ArrowRight') {
         e.preventDefault();
@@ -200,18 +289,12 @@ export default function Home() {
       }
     };
 
-    window.addEventListener(
-      'keydown',
-      onKey
-    );
+    window.addEventListener('keydown', onKey);
 
     return () => {
-      window.removeEventListener(
-        'keydown',
-        onKey
-      );
+      window.removeEventListener('keydown', onKey);
     };
-  });
+  }, [next, prev]);
 
 
   /* =========================================================
@@ -239,91 +322,12 @@ export default function Home() {
   }, []);
 
 
-  /* =========================================================
-     SIGUIENTE PAGINA
-     ========================================================= */
-
-  const next = () => {
-    startAudio();
-
-    const flipbook =
-      book.current?.pageFlip();
-
-    if (flipbook) {
-      console.log('Siguiente página');
-
-      flipbook.flipNext();
-    } else {
-      console.log(
-        'Flipbook todavía no está disponible'
-      );
-    }
-  };
-
-
-  /* =========================================================
-     PAGINA ANTERIOR
-     ========================================================= */
-
-  const prev = () => {
-    startAudio();
-
-    const flipbook =
-      book.current?.pageFlip();
-
-    if (flipbook) {
-      console.log('Página anterior');
-
-      flipbook.flipPrev();
-    } else {
-      console.log(
-        'Flipbook todavía no está disponible'
-      );
-    }
-  };
-
-
-  /* =========================================================
-     IR A UNA PAGINA
-     ========================================================= */
-
-  const goToPage = (index: number) => {
-    startAudio();
-
-    book.current
-      ?.pageFlip()
-      .turnToPage(index);
-
-    setThumbs(false);
-  };
-
-
-  /* =========================================================
-     EVENTO FLIP
-     ========================================================= */
-
-  const onFlip = (e: any) => {
-    const index = Number(
-      e?.data ?? 0
-    );
-
-    setPage(index + 1);
-
-    playPageSound();
-  };
-
-
-  /* =========================================================
-     PANTALLA COMPLETA
-     ========================================================= */
-
-  const toggleFullscreen = async () => {
+  const toggleFullscreen = useCallback(async () => {
     try {
 
       if (!document.fullscreenElement) {
 
-        await document.documentElement
-          .requestFullscreen?.();
+        await document.documentElement.requestFullscreen?.();
 
       } else {
 
@@ -335,16 +339,12 @@ export default function Home() {
       // El navegador puede bloquear fullscreen
       // en algunos contextos.
     }
-  };
+  }, []);
 
 
-  /* =========================================================
-     RESET ZOOM
-     ========================================================= */
-
-  const resetZoom = () => {
+  const resetZoom = useCallback(() => {
     setZoom(1);
-  };
+  }, []);
 
 
   /* =========================================================
@@ -530,24 +530,42 @@ export default function Home() {
 
             {/* ===============================================
                 FLIPBOOK
+
+                El ancho/alto cambian según isMobile para que
+                coincidan con los desplazamientos (140px / 180px)
+                que usa el CSS en .coverMode/.lastMode: si el
+                libro se dibuja a un tamaño y el CSS desplaza
+                pensando en otro, la portada queda mal alineada
+                al abrir/cerrar. La `key` fuerza un remount limpio
+                al cruzar el breakpoint en vez de dejar que la
+                librería intente mutar un tamaño ya inicializado.
                 =============================================== */}
 
             <HTMLFlipBook
+              key={isMobile ? 'mobile' : 'desktop'}
+
               ref={book as any}
 
-              width={360}
+              width={isMobile ? 280 : 360}
 
-              height={552}
+              height={isMobile ? 430 : 552}
 
               size="fixed"
 
-              minWidth={280}
+              /* El tipo de react-pageflip exige estas cuatro
+                 props aunque size="fixed" las ignore en tiempo
+                 de ejecución; las igualamos a width/height para
+                 que no describan un rango falso. */
 
-              maxWidth={520}
+              minWidth={isMobile ? 280 : 360}
 
-              minHeight={395}
+              maxWidth={isMobile ? 280 : 360}
 
-              maxHeight={735}
+              minHeight={isMobile ? 430 : 552}
+
+              maxHeight={isMobile ? 430 : 552}
+
+              autoSize={false}
 
               showCover={true}
 
@@ -557,11 +575,13 @@ export default function Home() {
 
               drawShadow={true}
 
-              maxShadowOpacity={0.75}
+              maxShadowOpacity={0.6}
 
-              flippingTime={850}
+              flippingTime={700}
 
               onFlip={onFlip}
+
+              onChangeState={onChangeState}
 
               className={styles.flipbook}
 
@@ -569,9 +589,7 @@ export default function Home() {
                 margin: '0 auto',
               }}
 
-              startPage={0}
-
-              autoSize={true}
+              startPage={page - 1}
 
               clickEventForward={true}
 

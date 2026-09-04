@@ -128,6 +128,10 @@
     align-items:center;
     justify-content:center;
     position:relative;
+    /* Los botones de zoom solo cambian una variable de estado
+       (scale), sin esto el cambio de tamaño era instantáneo. */
+    transition:transform .3s cubic-bezier(.22,.61,.36,1);
+    will-change:transform;
   }
   
   
@@ -720,6 +724,7 @@
      ========================================================= */
   
   @media(prefers-reduced-motion:reduce){
+    .bookStage,
     .bookWrap,
     .flipbook,
     .arrow,
@@ -849,3 +854,4 @@
       width:20px;
     }
   }
+  
