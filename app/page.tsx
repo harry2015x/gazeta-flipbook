@@ -323,7 +323,7 @@ export default function Home() {
             <HTMLFlipBook
               ref={book as any}
               width={360}
-              height={552}
+height={552}
               size="fixed"
               minWidth={280}
               maxWidth={520}
